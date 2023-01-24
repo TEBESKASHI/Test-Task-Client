@@ -6,6 +6,8 @@ import {
   Param,
   Body,
   HttpCode,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 
 import { CreateEventDto } from './dto/create-event.dto';
@@ -30,12 +32,13 @@ export class EventController {
   async createNewEvent(@Body() createEventDto: CreateEventDto) {
     this.eventService.create(createEventDto);
     return 'Successfuly created';
+    // throw new HttpException('Error after create event', HttpStatus.BAD_REQUEST);
   }
 
   @Delete(':id')
   @HttpCode(204)
   async deleteEvent(@Param('id') id: number) {
-    await this.eventService.delete(id);
+    this.eventService.delete(id);
     return 'Successfuly deleted';
   }
 }
