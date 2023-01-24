@@ -3,28 +3,31 @@ import { ClientProxy } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventEntity } from './event.entity';
+import { EventTransportChannel } from './enum';
+
+const SERVICE_NAME = 'EVENTS_SERVICE';
 
 @Injectable()
 export class EventService {
-  constructor(@Inject('EVENTS_SERVICE') private client: ClientProxy) {}
+  constructor(@Inject(SERVICE_NAME) private client: ClientProxy) {}
 
   async onApplicationBootstrap() {
     await this.client.connect();
   }
 
   findAll(): Observable<EventEntity[]> {
-    return this.client.send('event-all', { test: true });
+    return this.client.send(EventTransportChannel.EVENT_ALL, '');
   }
 
-  findById(id: number) {
-    return this.client.send('event-by-id', id);
+  findById(id: number): Observable<EventEntity> {
+    return this.client.send(EventTransportChannel.EVENT_BY_ID, id);
   }
 
-  create(event: CreateEventDto) {
-    return this.client.emit('event-create', event);
+  create(event: CreateEventDto): Observable<void> {
+    return this.client.emit(EventTransportChannel.EVENT_CREATE, event);
   }
 
-  delete(id: number) {
-    return this.client.emit('event-delete', id);
+  delete(id: number): Observable<void> {
+    return this.client.emit(EventTransportChannel.EVENT_DELETE, id);
   }
 }
